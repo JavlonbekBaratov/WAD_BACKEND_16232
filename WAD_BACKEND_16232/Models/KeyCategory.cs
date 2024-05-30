@@ -7,7 +7,7 @@ namespace WAD_BACKEND_16232.Models
     public class KeyCategory
     {
         [Key]
-        public int KeyCategoryID { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "Key category name is required")]
         public string KeyCategoryName { get; set; }
