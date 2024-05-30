@@ -1,0 +1,6 @@
+@WAD_BACKEND_16232_HostAddress = http://localhost:5141
+
+GET {{WAD_BACKEND_16232_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
