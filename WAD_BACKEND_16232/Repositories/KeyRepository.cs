@@ -1,4 +1,6 @@
 ﻿
+using WAD_BACKEND_16232.Models;
+
 namespace WAD_BACKEND_16232.Repositories
 {
     public class KeyRepository : IKeyRepository
