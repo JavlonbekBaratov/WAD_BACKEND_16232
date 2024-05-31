@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WAD_BACKEND_16232.Data.Migrations;
 using WAD_BACKEND_16232.Models;
+using Microsoft.Extensions.Logging;
 
 namespace WAD_BACKEND_16232.Repositories
 {

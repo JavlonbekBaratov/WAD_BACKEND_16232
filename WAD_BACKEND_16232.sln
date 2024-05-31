@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WAD_BACKEND_16232", "WAD_BACKEND_16232\WAD_BACKEND_16232.csproj", "{D81CA379-498C-4DE3-9B6A-2FBE84CDB41B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeyStoreApplication.DAL", "KeyStoreApplication\KeyStoreApplication.DAL.csproj", "{D10108AD-5301-4DF2-9B36-1D4FB92A78B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D81CA379-498C-4DE3-9B6A-2FBE84CDB41B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D81CA379-498C-4DE3-9B6A-2FBE84CDB41B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D81CA379-498C-4DE3-9B6A-2FBE84CDB41B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D10108AD-5301-4DF2-9B36-1D4FB92A78B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D10108AD-5301-4DF2-9B36-1D4FB92A78B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D10108AD-5301-4DF2-9B36-1D4FB92A78B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D10108AD-5301-4DF2-9B36-1D4FB92A78B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
