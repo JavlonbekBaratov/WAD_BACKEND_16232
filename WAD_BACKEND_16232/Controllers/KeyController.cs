@@ -7,32 +7,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WAD_BACKEND_16232.Data.Migrations;
 using WAD_BACKEND_16232.Models;
+using WAD_BACKEND_16232.Repositories;
 
 namespace WAD_BACKEND_16232.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class KeyController : ControllerBase
+    public class KeysController : ControllerBase
     {
-        private readonly KeyStoreDbContext _context;
+        private readonly IKeyRepository _keyRepository;
 
-        public KeyController(KeyStoreDbContext context)
+        public KeysController(IKeyRepository keyRepository)
         {
-            _context = context;
+            _keyRepository = keyRepository;
         }
 
-        // GET: api/Key
+        // GET: api/Keys
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Key>>> GetKeys()
         {
-            return await _context.Keys.ToListAsync();
+            return new JsonResult(await _keyRepository.GetAllKeys(includeKeyCategory: true));
         }
 
-        // GET: api/Key/5
+        // GET: api/Keys/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Key>> GetKey(int id)
         {
-            var key = await _context.Keys.FindAsync(id);
+            var key = await _keyRepository.GetKeyById(id, includeKeyCategory: true);
 
             if (key == null)
             {
@@ -42,8 +43,19 @@ namespace WAD_BACKEND_16232.Controllers
             return key;
         }
 
-        // PUT: api/Key/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Keys
+        [HttpPost]
+        public async Task<ActionResult<Key>> PostKey(Key key)
+        {
+            await _keyRepository.CreateKey(key);
+
+            // Include the KeyCategory information in the response
+            await _keyRepository.LoadKeyCategory(key);
+
+            return CreatedAtAction(nameof(GetKey), new { id = key.Id }, key);
+        }
+
+        // PUT: api/Keys/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutKey(int id, Key key)
         {
@@ -52,15 +64,13 @@ namespace WAD_BACKEND_16232.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(key).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _keyRepository.UpdateKey(key);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!KeyExists(id))
+                if (!_keyRepository.KeyExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +83,19 @@ namespace WAD_BACKEND_16232.Controllers
             return NoContent();
         }
 
-        // POST: api/Key
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Key>> PostKey(Key key)
-        {
-            _context.Keys.Add(key);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetKey", new { id = key.Id }, key);
-        }
-
-        // DELETE: api/Key/5
+        // DELETE: api/Keys/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKey(int id)
         {
-            var key = await _context.Keys.FindAsync(id);
+            var key = await _keyRepository.GetKeyById(id);
             if (key == null)
             {
                 return NotFound();
             }
 
-            _context.Keys.Remove(key);
-            await _context.SaveChangesAsync();
+            await _keyRepository.DeleteKey(id);
 
             return NoContent();
-        }
-
-        private bool KeyExists(int id)
-        {
-            return _context.Keys.Any(e => e.Id == id);
         }
     }
 }

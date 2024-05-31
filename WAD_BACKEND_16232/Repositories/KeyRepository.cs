@@ -1,43 +1,124 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
+using WAD_BACKEND_16232.Data.Migrations;
 using WAD_BACKEND_16232.Models;
 
 namespace WAD_BACKEND_16232.Repositories
 {
     public class KeyRepository : IKeyRepository
     {
-        public Task CreateKey(Key key)
+        private readonly KeyStoreDbContext _dbContext;
+
+        public KeyRepository(KeyStoreDbContext dbContext)
         {
-            throw new NotImplementedException();
+            _dbContext = dbContext;
         }
 
-        public Task DeleteKey(int id)
+        public async Task<IEnumerable<Key>> GetAllKeys(bool includeKeyCategory = false)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (includeKeyCategory)
+                {
+                    return await _dbContext.Keys.Include(k => k.KeyCategory).ToListAsync();
+                }
+                else
+                {
+                    return await _dbContext.Keys.ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw new Exception("Error occurred while retrieving keys.", ex);
+            }
         }
 
-        public Task<IEnumerable<Key>> GetAllKeys(bool includeKeyCategory = false)
+
+        public async Task<Key> GetKeyById(int id, bool includeKeyCategory = false)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (includeKeyCategory)
+                {
+                    return await _dbContext.Keys.Include(k => k.KeyCategory).FirstOrDefaultAsync(k => k.Id == id);
+                }
+                else
+                {
+                    return await _dbContext.Keys.FirstOrDefaultAsync(k => k.Id == id);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw new Exception($"Error occurred while retrieving key with ID {id}.", ex);
+            }
         }
 
-        public Task<Key> GetKeyById(int id, bool includeKeyCategory = false)
+        public async Task CreateKey(Key key)
         {
-            throw new NotImplementedException();
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            try
+            {
+                _dbContext.Keys.Add(key);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw new Exception("Failed to create key. Please check the provided data.", ex);
+            }
+        }
+
+        public async Task UpdateKey(Key key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            try
+            {
+                _dbContext.Entry(key).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw new Exception($"Error occurred while updating key with ID {key.Id}.", ex);
+            }
+        }
+
+        public async Task DeleteKey(int id)
+        {
+            try
+            {
+                var key = await _dbContext.Keys.FirstOrDefaultAsync(k => k.Id == id);
+                if (key != null)
+                {
+                    _dbContext.Keys.Remove(key);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                throw new Exception($"Error occurred while deleting key with ID {id}.", ex);
+            }
         }
 
         public bool KeyExists(int id)
         {
-            throw new NotImplementedException();
+            return _dbContext.Keys.Any(k => k.Id == id);
         }
 
-        public Task LoadKeyCategory(Key key)
+        public async Task LoadKeyCategory(Key key)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateKey(Key key)
-        {
-            throw new NotImplementedException();
+            await _dbContext.Entry(key).Reference(k => k.KeyCategory).LoadAsync();
         }
     }
 }

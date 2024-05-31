@@ -7,32 +7,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WAD_BACKEND_16232.Data.Migrations;
 using WAD_BACKEND_16232.Models;
+using WAD_BACKEND_16232.Repositories;
 
 namespace WAD_BACKEND_16232.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class KeyCategoryController : ControllerBase
+    public class KeyCategoriesController : ControllerBase
     {
-        private readonly KeyStoreDbContext _context;
+        private readonly IKeyCategoryRepository _keyCategoryRepository;
 
-        public KeyCategoryController(KeyStoreDbContext context)
+        public KeyCategoriesController(IKeyCategoryRepository keyCategoryRepository)
         {
-            _context = context;
+            _keyCategoryRepository = keyCategoryRepository;
         }
 
-        // GET: api/KeyCategory
+        // GET: api/KeyCategories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KeyCategory>>> GetKeyCategories()
         {
-            return await _context.KeyCategories.ToListAsync();
+            return new JsonResult(await _keyCategoryRepository.GetAllKeyCategories());
         }
 
-        // GET: api/KeyCategory/5
+        // GET: api/KeyCategories/5
         [HttpGet("{id}")]
         public async Task<ActionResult<KeyCategory>> GetKeyCategory(int id)
         {
-            var keyCategory = await _context.KeyCategories.FindAsync(id);
+            var keyCategory = await _keyCategoryRepository.GetKeyCategoryById(id);
 
             if (keyCategory == null)
             {
@@ -42,8 +43,16 @@ namespace WAD_BACKEND_16232.Controllers
             return keyCategory;
         }
 
-        // PUT: api/KeyCategory/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/KeyCategories
+        [HttpPost]
+        public async Task<ActionResult<KeyCategory>> PostKeyCategory(KeyCategory keyCategory)
+        {
+            await _keyCategoryRepository.CreateKeyCategory(keyCategory);
+
+            return CreatedAtAction(nameof(GetKeyCategory), new { id = keyCategory.Id }, keyCategory);
+        }
+
+        // PUT: api/KeyCategories/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutKeyCategory(int id, KeyCategory keyCategory)
         {
@@ -52,15 +61,13 @@ namespace WAD_BACKEND_16232.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(keyCategory).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _keyCategoryRepository.UpdateKeyCategory(keyCategory);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!KeyCategoryExists(id))
+                if (!_keyCategoryRepository.KeyCategoryExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +80,19 @@ namespace WAD_BACKEND_16232.Controllers
             return NoContent();
         }
 
-        // POST: api/KeyCategory
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<KeyCategory>> PostKeyCategory(KeyCategory keyCategory)
-        {
-            _context.KeyCategories.Add(keyCategory);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetKeyCategory", new { id = keyCategory.Id }, keyCategory);
-        }
-
-        // DELETE: api/KeyCategory/5
+        // DELETE: api/KeyCategories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKeyCategory(int id)
         {
-            var keyCategory = await _context.KeyCategories.FindAsync(id);
+            var keyCategory = await _keyCategoryRepository.GetKeyCategoryById(id);
             if (keyCategory == null)
             {
                 return NotFound();
             }
 
-            _context.KeyCategories.Remove(keyCategory);
-            await _context.SaveChangesAsync();
+            await _keyCategoryRepository.DeleteKeyCategory(id);
 
             return NoContent();
-        }
-
-        private bool KeyCategoryExists(int id)
-        {
-            return _context.KeyCategories.Any(e => e.Id == id);
         }
     }
 }
